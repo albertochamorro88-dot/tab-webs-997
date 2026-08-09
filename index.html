@@ -208,22 +208,66 @@
   .bx h3{margin:30px 0 12px} .bx p{font-size:15px;line-height:1.6;color:var(--gray)}
   .bx.w3{grid-column:span 3} .bx.w2{grid-column:span 2}
 
-  /* ═══ PROCESO STICKY ═══ */
-  .proc{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(30px,5vw,80px);align-items:start;
-    margin-top:clamp(40px,4vw,60px)}
-  .proc-l{position:sticky;top:22vh}
-  .day{font-family:'Roboto Mono',monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--red)}
-  .proc-big{font-size:clamp(64px,11vw,168px);font-weight:900;letter-spacing:-.05em;line-height:.85;margin:14px 0 18px}
-  .proc-l p{font-size:16px;line-height:1.62;color:#4A4A52;max-width:32ch}
-  .steps{display:flex;flex-direction:column;gap:2px;background:var(--line-d)}
-  .step{background:var(--black);color:#fff;padding:clamp(26px,3vw,40px);opacity:.35;
-    transition:opacity .5s,background .5s;position:relative}
-  .step.on{opacity:1;background:var(--ink2)}
-  .step::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--grad);
-    transform:scaleY(0);transform-origin:top;transition:transform .6s var(--ease)}
-  .step.on::before{transform:scaleY(1)}
-  .step .sn{font-family:'Roboto Mono',monospace;font-size:11.5px;letter-spacing:.16em;color:var(--blue);display:block;margin-bottom:16px}
-  .step h3{margin-bottom:11px} .step p{font-size:15.5px;line-height:1.62;color:var(--gray)}
+  /* ═══ PROCESO — SCROLL CINEMATOGRÁFICO ═══ */
+  /* La animación se controla con --p (0→1), calculado desde la posición de scroll. */
+  .scrolly{position:relative;background:var(--black);padding:0}
+  .scrolly-track{height:460vh;position:relative}
+  .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,3vh,34px)}
+  .stage::before{content:'';position:absolute;inset:0;z-index:0;
+    background:radial-gradient(900px circle at 50% 30%,rgba(90,112,250,calc(.16*var(--p,0))),transparent 70%),
+               radial-gradient(700px circle at 30% 90%,rgba(250,77,77,calc(.13*var(--p,0))),transparent 70%)}
+  .st-head{position:relative;z-index:3;text-align:center;padding:0 20px}
+  .st-day{font-family:'Roboto Mono',monospace;font-size:clamp(11px,1.1vw,13px);letter-spacing:.24em;
+    text-transform:uppercase;color:var(--red);margin-bottom:12px}
+  .st-title{font-size:clamp(21px,3.1vw,44px);font-weight:900;letter-spacing:-.03em;line-height:1.06;min-height:1.1em}
+  .st-sub{font-family:'Roboto Mono',monospace;font-size:clamp(10px,1vw,12px);letter-spacing:.16em;
+    text-transform:uppercase;color:var(--mut-d);margin-top:12px}
+  /* ventana de navegador */
+  .win{position:relative;z-index:3;width:min(90vw,860px);aspect-ratio:16/10;max-height:58vh;
+    background:#141419;border:1px solid var(--line-d);display:flex;flex-direction:column;
+    box-shadow:0 40px 90px rgba(0,0,0,.55);transform:scale(calc(.94 + .06*var(--p,0)))}
+  .win-bar{flex:0 0 34px;background:#1B1C23;border-bottom:1px solid var(--line-d);
+    display:flex;align-items:center;gap:8px;padding:0 13px}
+  .win-bar u{display:block;width:9px;height:9px;border-radius:50%;background:#33343E;text-decoration:none}
+  .win-url{flex:1;height:19px;background:#0E0F14;margin-left:8px;display:flex;align-items:center;
+    padding:0 10px;font-family:'Roboto Mono',monospace;font-size:10px;color:var(--mut-d);
+    letter-spacing:.06em;overflow:hidden;white-space:nowrap}
+  .win-body{flex:1;position:relative;overflow:hidden;background:#0B0B0F;padding:4.5%}
+  /* rejilla de maquetación (fase 1) */
+  .wgrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);opacity:0}
+  .wgrid i{border-right:1px solid rgba(255,255,255,.07)}
+  /* bloques que se van montando */
+  .wb{position:absolute;background:#23242E;opacity:0;transform:translateY(16px)}
+  .wb.nav{left:4.5%;right:4.5%;top:5%;height:7%;background:transparent;
+    display:flex;align-items:center;justify-content:space-between}
+  .wb.nav .lg{width:19%;height:36%;background:#3A3B47}
+  .wb.nav .bt{width:13%;height:56%;background:#3A3B47}
+  .wb.h1{left:4.5%;top:20%;height:9%;width:74%}
+  .wb.h2{left:4.5%;top:32%;height:9%;width:52%}
+  .wb.h3{left:4.5%;top:44%;height:9.5%;width:29%}
+  .wb.txt{left:4.5%;top:57%;height:3.4%;width:44%}
+  .wb.txt2{left:4.5%;top:62.5%;height:3.4%;width:36%}
+  .wb.c1{left:4.5%;bottom:6%;height:14%;width:27.5%}
+  .wb.c2{left:36.25%;bottom:6%;height:14%;width:27.5%}
+  .wb.c3{left:68%;bottom:6%;height:14%;width:27.5%}
+  /* al llegar el diseño, el gris se vuelve marca */
+  .wb.h3.designed{background:var(--grad)}
+  .wb.h1.designed,.wb.h2.designed{background:#fff}
+  .wb.txt.designed,.wb.txt2.designed{background:#565866}
+  .wb.nav .lg.designed{background:#fff}
+  .wb.nav .bt.designed{background:var(--grad)}
+  .wb.c1.designed,.wb.c2.designed,.wb.c3.designed{background:transparent;border:1px solid #2A2B35}
+  .wglow{position:absolute;width:60%;aspect-ratio:1;border-radius:50%;background:var(--blue);
+    filter:blur(80px);right:-12%;top:-26%;opacity:0}
+  /* barra de progreso de los 7 días */
+  .st-days{position:relative;z-index:3;display:flex;gap:6px;align-items:center}
+  .st-days b{display:block;width:clamp(22px,3.4vw,44px);height:3px;background:#26272F;transition:background .3s}
+  .st-days b.on{background:var(--grad)}
+  @media(max-width:680px){
+    .win{max-height:44vh;width:94vw}
+    .scrolly-track{height:400vh}
+  }
 
   /* ═══ PRECIO ═══ */
   .pricebox{border:1px solid var(--line-d);background:var(--ink);margin-top:clamp(40px,4.5vw,64px);
@@ -398,22 +442,38 @@
   </div>
 </section>
 
-<!-- ═══ PROCESO ═══ -->
-<section class="cream">
-  <div class="wrap">
-    <div class="eyebrow rv"><i></i> [04] El proceso</div>
-    <h2 class="rv d1">De la llamada<br>a la web <span class="rd">publicada.</span></h2>
-    <div class="proc">
-      <div class="proc-l rv d2">
-        <span class="day">Plazo total</span>
-        <div class="proc-big grad" id="days">7</div>
-        <p>Días laborables desde que nos cuentas el negocio hasta que la web está funcionando en tu dominio.</p>
+<!-- ═══ PROCESO — SE CONSTRUYE MIENTRAS BAJAS ═══ -->
+<section class="scrolly" id="scrolly">
+  <div class="scrolly-track">
+    <div class="stage">
+      <div class="st-head">
+        <div class="st-day" id="stDay">DÍA 1</div>
+        <div class="st-title" id="stTitle">Nos cuentas el negocio</div>
+        <div class="st-sub" id="stSub">Treinta minutos de llamada</div>
       </div>
-      <div class="steps">
-        <div class="step on" data-step><span class="sn">DÍA 1</span><h3>Nos cuentas el negocio</h3><p>Una llamada de treinta minutos: qué vendes, a quién y qué te piden siempre antes de comprar. De ahí sale la estructura.</p></div>
-        <div class="step" data-step><span class="sn">DÍAS 2—3</span><h3>Estructura y textos</h3><p>Te enviamos el esqueleto de la página con los textos escritos. Se aprueba aquí, antes de que exista un solo píxel de diseño.</p></div>
-        <div class="step" data-step><span class="sn">DÍAS 4—6</span><h3>Diseño y desarrollo</h3><p>Montamos la web completa, con su versión de móvil, la analítica conectada y los formularios funcionando.</p></div>
-        <div class="step" data-step><span class="sn">DÍA 7</span><h3>Revisión y publicación</h3><p>Una ronda de ajustes y la publicamos en tu dominio. Te entregamos los accesos y el código.</p></div>
+
+      <div class="win" id="win">
+        <div class="win-bar">
+          <u></u><u></u><u></u>
+          <div class="win-url" id="stUrl"></div>
+        </div>
+        <div class="win-body">
+          <div class="wglow" id="wglow"></div>
+          <div class="wgrid" id="wgrid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="wb nav" data-b="0"><span class="lg"></span><span class="bt"></span></div>
+          <div class="wb h1"   data-b="1"></div>
+          <div class="wb h2"   data-b="2"></div>
+          <div class="wb h3"   data-b="3"></div>
+          <div class="wb txt"  data-b="4"></div>
+          <div class="wb txt2" data-b="5"></div>
+          <div class="wb c1"   data-b="6"></div>
+          <div class="wb c2"   data-b="7"></div>
+          <div class="wb c3"   data-b="8"></div>
+        </div>
+      </div>
+
+      <div class="st-days" id="stDays">
+        <b></b><b></b><b></b><b></b><b></b><b></b><b></b>
       </div>
     </div>
   </div>
@@ -528,22 +588,6 @@
   },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
   document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
 
-  /* ── contadores ── */
-  function countTo(el,target,suffix){
-    if(reduce){ el.textContent=target+(suffix||''); return; }
-    var t0=null,dur=1400;
-    requestAnimationFrame(function step(ts){
-      if(!t0)t0=ts;
-      var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3);
-      el.textContent=Math.round(target*e)+(suffix||'');
-      if(p<1)requestAnimationFrame(step);
-    });
-  }
-  var days=document.getElementById('days');
-  new IntersectionObserver(function(es,ob){
-    es.forEach(function(e){ if(e.isIntersecting){ countTo(days,7,''); ob.disconnect(); } });
-  },{threshold:.6}).observe(days);
-
   /* ── precio: efecto de cifras revueltas ── */
   var pnum=document.getElementById('pnum');
   new IntersectionObserver(function(es,ob){
@@ -576,18 +620,86 @@
     });
   });
 
-  /* ── proceso: paso activo según scroll ── */
-  var steps=document.querySelectorAll('[data-step]');
-  if(steps.length){
-    var sio=new IntersectionObserver(function(es){
-      es.forEach(function(e){
-        if(e.isIntersecting){
-          steps.forEach(function(s){ s.classList.remove('on'); });
-          e.target.classList.add('on');
-        }
+  /* ══════════ PROCESO: LA WEB SE CONSTRUYE CON EL SCROLL ══════════ */
+  var sc=document.getElementById('scrolly');
+  if(sc){
+    var track=sc.querySelector('.scrolly-track'),
+        blocks=sc.querySelectorAll('.wb'),
+        wgrid=document.getElementById('wgrid'),
+        wglow=document.getElementById('wglow'),
+        stDay=document.getElementById('stDay'),
+        stTitle=document.getElementById('stTitle'),
+        stSub=document.getElementById('stSub'),
+        stUrl=document.getElementById('stUrl'),
+        dayBars=document.getElementById('stDays').querySelectorAll('b');
+
+    var URL_TXT='tunegocio.com';
+    /* Cada fase ocupa un tramo de la barra de scroll */
+    var PHASES=[
+      {at:.00, day:'DÍA 1',     t:'Nos cuentas el negocio',   s:'Treinta minutos de llamada', d:1},
+      {at:.20, day:'DÍAS 2—3',  t:'Estructura y textos',      s:'Se aprueba antes de diseñar nada', d:3},
+      {at:.46, day:'DÍAS 4—6',  t:'Diseño y desarrollo',      s:'Diseño a medida y versión de móvil', d:6},
+      {at:.72, day:'DÍA 7',     t:'Publicada en tu dominio',  s:'El código y los accesos, tuyos', d:7}
+    ];
+    var cur=-1;
+
+    /* interpola 0→1 dentro de un tramo */
+    function band(p,a,b){ return Math.max(0,Math.min(1,(p-a)/(b-a))); }
+
+    function render(p){
+      sc.style.setProperty('--p',p.toFixed(4));
+
+      /* fase de texto */
+      var idx=0;
+      for(var i=0;i<PHASES.length;i++){ if(p>=PHASES[i].at) idx=i; }
+      if(idx!==cur){
+        cur=idx;
+        var ph=PHASES[idx];
+        stDay.textContent=ph.day;
+        stTitle.textContent=ph.t;
+        stSub.textContent=ph.s;
+        dayBars.forEach(function(b,i){ b.classList.toggle('on', i<ph.d); });
+      }
+
+      /* fase 1 · la rejilla de maquetación aparece y luego se atenúa */
+      var gIn=band(p,.02,.14), gOut=band(p,.60,.80);
+      wgrid.style.opacity=(gIn*(1-gOut*.75)).toFixed(3);
+
+      /* fase 2 · los bloques entran escalonados entre .18 y .50 */
+      blocks.forEach(function(el,i){
+        var a=.18+i*.034, b=a+.10;
+        var v=band(p,a,b);
+        el.style.opacity=v.toFixed(3);
+        el.style.transform='translateY('+((1-v)*16).toFixed(1)+'px)';
       });
-    },{threshold:.55,rootMargin:'-18% 0px -34% 0px'});
-    steps.forEach(function(s){ sio.observe(s); });
+
+      /* fase 3 · el gris se convierte en diseño de marca */
+      var designed=p>=.52;
+      blocks.forEach(function(el){
+        el.classList.toggle('designed',designed);
+        var lg=el.querySelector('.lg'), bt=el.querySelector('.bt');
+        if(lg) lg.classList.toggle('designed',designed);
+        if(bt) bt.classList.toggle('designed',designed);
+      });
+      wglow.style.opacity=(band(p,.52,.70)*.5).toFixed(3);
+
+      /* fase 4 · la URL se escribe sola */
+      var u=band(p,.74,.94);
+      stUrl.textContent=URL_TXT.slice(0,Math.round(u*URL_TXT.length));
+    }
+
+    var pend=false;
+    function onSc(){
+      var r=track.getBoundingClientRect();
+      var total=r.height-innerHeight;
+      var p=total>0?Math.max(0,Math.min(1,-r.top/total)):0;
+      render(p);
+      pend=false;
+    }
+    addEventListener('scroll',function(){ if(!pend){requestAnimationFrame(onSc);pend=true;} },{passive:true});
+    addEventListener('resize',onSc);
+    /* sin animación: se muestra el estado final para que nada quede invisible */
+    if(reduce){ render(1); } else { onSc(); }
   }
 
   /* ── antes / después arrastrable ── */
