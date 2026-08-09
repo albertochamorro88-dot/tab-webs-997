@@ -588,32 +588,54 @@
   (function(){
     var vid=document.getElementById('heroVid'), hero=document.getElementById('hero');
     if(!vid||!hero||reduce) return;
-    var wide=matchMedia('(min-width:900px)').matches;
+    /* Solo se descarta con ahorro de datos o conexión lenta. Con 392 KB el móvil
+       también lo aguanta, así que no se excluye por tamaño de pantalla. */
     var c=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-    var slow=c&&(c.saveData===true||/2g|slow-2g|3g/.test(c.effectiveType||''));
-    if(!wide||slow) return;
+    if(c&&(c.saveData===true||/(^|[^4])2g|slow-2g/.test(c.effectiveType||''))) return;
+
+    var started=false;
+
+    function tryPlay(){
+      var p=vid.play();
+      if(p&&p.catch) p.catch(function(){
+        /* Autoplay bloqueado (Safari con ahorro de energía, ajuste del usuario…).
+           Se reintenta en cuanto haya cualquier gesto: eso siempre lo permite. */
+        ['pointerdown','touchstart','keydown','scroll'].forEach(function(ev){
+          addEventListener(ev,function once(){
+            ['pointerdown','touchstart','keydown','scroll'].forEach(function(e2){
+              removeEventListener(e2,once);
+            });
+            vid.play().catch(function(){});
+          },{once:true,passive:true});
+        });
+      });
+    }
 
     function start(){
+      if(started) return; started=true;
+      vid.muted=true;            /* explícito: Safari lo exige para autoplay */
+      vid.playsInline=true;
+      vid.preload='auto';        /* sin esto, con preload="none" no llega a cargar */
       vid.src='assets/video/hero-loop.mp4';
       vid.load();
-      vid.addEventListener('canplay',function(){
-        var p=vid.play();
-        if(p&&p.catch) p.catch(function(){ /* si el navegador bloquea el autoplay, se queda la malla */ });
-        hero.classList.add('has-video');
-      },{once:true});
-      /* pausa cuando el hero sale de pantalla o se cambia de pestaña */
+      /* el velo se activa solo cuando hay imagen de verdad */
+      vid.addEventListener('playing',function(){ hero.classList.add('has-video'); },{once:true});
+      vid.addEventListener('error',function(){ hero.classList.remove('has-video'); });
+      tryPlay();
+
       new IntersectionObserver(function(en){
-        if(en[0].isIntersecting&&!document.hidden){ vid.play().catch(function(){}); }
+        if(en[0].isIntersecting&&!document.hidden) tryPlay();
         else vid.pause();
       },{threshold:0}).observe(hero);
       document.addEventListener('visibilitychange',function(){
         if(document.hidden) vid.pause();
-        else if(hero.getBoundingClientRect().bottom>0) vid.play().catch(function(){});
+        else if(hero.getBoundingClientRect().bottom>0) tryPlay();
       });
     }
-    /* se espera a que la página esté cargada: el vídeo nunca compite con el texto */
+
+    /* arranca tras la carga para no competir con el texto, con tope por si load ya pasó */
     if(document.readyState==='complete') start();
-    else addEventListener('load',start);
+    else { addEventListener('load',start); setTimeout(start,3000); }
   })();
 
   /* ── foco de luz que sigue al ratón (solo con ratón real) ── */
