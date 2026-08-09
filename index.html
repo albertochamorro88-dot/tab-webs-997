@@ -97,21 +97,36 @@
   .rv.d4{transition-delay:.36s}.rv.d5{transition-delay:.45s}
 
   /* ═══ HERO ═══ */
-  .hero{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-    padding:132px 0 50px;overflow:hidden}
-  /* El vídeo solo se carga en escritorio y con buena conexión (ver JS).
-     Si no entra, la malla del canvas queda como fondo y no se nota nada. */
-  #heroVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
-    opacity:0;transition:opacity 1.2s var(--ease)}
-  .hero.has-video #heroVid{opacity:1}
+  /* ═══ HERO CINEMATOGRÁFICO — el scroll conduce la cámara ═══
+     La secuencia de fotogramas se pinta en canvas en vez de hacer seek a un
+     <video>: el seek da tirones y en iOS Safari directamente no funciona. */
+  .hero-track{height:280vh;position:relative}
+  .hero{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;
+    justify-content:center;padding:132px 0 50px;overflow:hidden}
+  #seq{position:absolute;inset:0;width:100%;height:100%;z-index:0;
+    opacity:0;transition:opacity 1s var(--ease)}
+  .hero.has-seq #seq{opacity:1}
   /* velo para que el titular blanco no compita con los haces rojos */
-  .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1.2s var(--ease);
-    background:linear-gradient(90deg,rgba(11,11,15,.93) 0%,rgba(11,11,15,.78) 42%,rgba(11,11,15,.44) 100%),
-               linear-gradient(180deg,rgba(11,11,15,.72) 0%,transparent 34%,rgba(11,11,15,.6) 100%)}
-  .hero.has-video .hero-scrim{opacity:1}
-  #mesh{position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:.85;transition:opacity 1.2s var(--ease)}
-  .hero.has-video #mesh{opacity:.32}
+  .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 1s var(--ease);
+    background:linear-gradient(90deg,rgba(11,11,15,.93) 0%,rgba(11,11,15,.78) 42%,rgba(11,11,15,.46) 100%),
+               linear-gradient(180deg,rgba(11,11,15,.72) 0%,transparent 34%,rgba(11,11,15,.62) 100%)}
+  .hero.has-seq .hero-scrim{opacity:1}
+  #mesh{position:absolute;inset:0;width:100%;height:100%;z-index:2;opacity:.85;transition:opacity 1s var(--ease)}
+  .hero.has-seq #mesh{opacity:.28}
   .hero .wrap{position:relative;z-index:3}
+  /* los tres mensajes que se relevan mientras avanza la cámara */
+  .beats{position:relative;margin-top:32px;min-height:5.4em}
+  .beat{position:absolute;inset:0;max-width:50ch;font-size:clamp(16px,1.35vw,20px);line-height:1.6;
+    color:var(--gray);opacity:0;transform:translateY(12px);
+    transition:opacity .5s var(--ease),transform .5s var(--ease);pointer-events:none}
+  .beat.on{opacity:1;transform:none;pointer-events:auto}
+  /* indicador de que hay que seguir bajando */
+  .scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:4;
+    display:flex;flex-direction:column;align-items:center;gap:9px;
+    font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--mut-d);transition:opacity .4s}
+  .scrollcue i{display:block;width:1px;height:34px;background:linear-gradient(180deg,var(--mut-d),transparent)}
+  @media(max-width:680px){ .hero-track{height:240vh} .beats{min-height:7em} }
   .tag{font-family:'Roboto Mono',monospace;font-size:12px;letter-spacing:.18em;color:var(--blue);
     text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;
     border:1px solid rgba(90,112,250,.35);padding:9px 16px;margin-bottom:32px}
@@ -362,9 +377,9 @@
 </nav>
 
 <!-- ═══ HERO ═══ -->
+<div class="hero-track" id="heroTrack">
 <header class="hero" id="hero">
-  <video id="heroVid" muted playsinline loop preload="none"
-         poster="assets/video/hero-poster.jpg" aria-hidden="true" tabindex="-1"></video>
+  <canvas id="seq" aria-hidden="true"></canvas>
   <div class="hero-scrim"></div>
   <canvas id="mesh"></canvas>
   <div class="wrap">
@@ -374,7 +389,11 @@
       <span class="ln"><span>que ser bonita.</span></span>
       <span class="ln"><span>Tiene que <em class="grad" style="font-style:normal">vender</em>.</span></span>
     </h1>
-    <p class="hero-sub">Diseño, textos y desarrollo. Una web hecha a medida que convierte visitas en clientes, con precio cerrado y fecha de entrega.</p>
+    <div class="beats hero-sub">
+      <p class="beat on" data-beat>Diseño, textos y desarrollo. Una web hecha a medida que convierte visitas en clientes, con precio cerrado y fecha de entrega.</p>
+      <p class="beat" data-beat>Sin plantillas, sin maquetadores de bloques y sin tres meses de reuniones. Un proceso cerrado que ya sabe qué construir y en qué orden.</p>
+      <p class="beat" data-beat>Te entregamos el código y los accesos. Sin cuotas, sin licencias y sin depender de nosotros para cambiar una coma.</p>
+    </div>
     <div class="hero-cta">
       <a href="#empezar" class="btn btn-p"><s>Quiero la mía</s><span class="ar">→</span></a>
       <a href="#comparar" class="btn btn-g"><s>Ver la diferencia</s><span class="ar">↓</span></a>
@@ -385,7 +404,9 @@
       <em>Precio cerrado<br>Entrega en 7 días</em>
     </div>
   </div>
+  <div class="scrollcue" id="cue"><span>Sigue bajando</span><i></i></div>
 </header>
+</div>
 
 <div class="marq">
   <div class="marq-t" id="marq">
@@ -582,60 +603,101 @@
   addEventListener('scroll',function(){ if(!tick){requestAnimationFrame(onScroll);tick=true;} },{passive:true});
   onScroll();
 
-  /* ══════════ VÍDEO DE FONDO — carga condicionada ══════════
-     Pesa 392 KB, así que no se sirve a quien no le compensa: móvil, conexión
-     lenta, ahorro de datos o animaciones reducidas se quedan con la malla. */
+  /* ══════════ HERO CINEMATOGRÁFICO — el scroll conduce la cámara ══════════
+     73 fotogramas WebP pintados en canvas. Se elige el fotograma según la
+     posición de scroll, así que subir rebobina la cámara. */
   (function(){
-    var vid=document.getElementById('heroVid'), hero=document.getElementById('hero');
-    if(!vid||!hero||reduce) return;
-    /* Solo se descarta con ahorro de datos o conexión lenta. Con 392 KB el móvil
-       también lo aguanta, así que no se excluye por tamaño de pantalla. */
+    var cv=document.getElementById('seq'), hero=document.getElementById('hero'),
+        track=document.getElementById('heroTrack'), cue=document.getElementById('cue'),
+        beats=document.querySelectorAll('[data-beat]');
+    if(!cv||!hero||!track) return;
+
+    var N=73, imgs=new Array(N), loaded=0, ready=false, ctx=cv.getContext('2d'),
+        W=0,H=0, dpr=Math.min(devicePixelRatio||1,2), lastDrawn=-1, curP=0;
+
+    function pad(n){ return ('00'+n).slice(-3); }
+
+    function resize(){
+      var r=cv.getBoundingClientRect(); W=r.width; H=r.height;
+      cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      lastDrawn=-1; draw(curP);
+    }
+
+    /* dibuja cubriendo el marco, como object-fit:cover */
+    function paint(img){
+      if(!img||!img.width) return;
+      var s=Math.max(W/img.width,H/img.height),
+          w=img.width*s, h=img.height*s;
+      ctx.drawImage(img,(W-w)/2,(H-h)/2,w,h);
+    }
+
+    /* si el fotograma exacto aún no ha llegado, usa el más cercano disponible */
+    function nearest(i){
+      if(imgs[i]&&imgs[i].complete) return imgs[i];
+      for(var d=1;d<N;d++){
+        if(imgs[i-d]&&imgs[i-d].complete) return imgs[i-d];
+        if(imgs[i+d]&&imgs[i+d].complete) return imgs[i+d];
+      }
+      return null;
+    }
+
+    function draw(p){
+      curP=p;
+      if(!ready) return;
+      var i=Math.min(N-1,Math.max(0,Math.round(p*(N-1))));
+      if(i===lastDrawn) return;
+      var img=nearest(i);
+      if(img){ paint(img); lastDrawn=i; }
+    }
+
+    function load(){
+      /* el primero manda: en cuanto está, se enseña el fondo */
+      var first=new Image();
+      first.decoding='async';
+      first.onload=function(){
+        imgs[0]=first; ready=true; resize();
+        hero.classList.add('has-seq');
+        /* el resto en segundo plano, de 6 en 6 para no saturar la conexión */
+        var next=1;
+        function batch(){
+          for(var k=0;k<6&&next<N;k++,next++){
+            (function(idx){
+              var im=new Image(); im.decoding='async';
+              im.onload=im.onerror=function(){ loaded++; if(idx===Math.round(curP*(N-1))) { lastDrawn=-1; draw(curP); } if(next<N) batch(); };
+              im.src='assets/seq/f_'+pad(idx+1)+'.webp';
+              imgs[idx]=im;
+            })(next);
+          }
+        }
+        batch();
+      };
+      first.onerror=function(){ /* si falla, se queda la malla animada */ };
+      first.src='assets/seq/f_001.webp';
+    }
+
+    /* no se sirve con ahorro de datos, conexión lenta ni animaciones reducidas */
     var c=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-    if(c&&(c.saveData===true||/(^|[^4])2g|slow-2g/.test(c.effectiveType||''))) return;
-
-    var started=false;
-
-    function tryPlay(){
-      var p=vid.play();
-      if(p&&p.catch) p.catch(function(){
-        /* Autoplay bloqueado (Safari con ahorro de energía, ajuste del usuario…).
-           Se reintenta en cuanto haya cualquier gesto: eso siempre lo permite. */
-        ['pointerdown','touchstart','keydown','scroll'].forEach(function(ev){
-          addEventListener(ev,function once(){
-            ['pointerdown','touchstart','keydown','scroll'].forEach(function(e2){
-              removeEventListener(e2,once);
-            });
-            vid.play().catch(function(){});
-          },{once:true,passive:true});
-        });
-      });
+    var skip=reduce||(c&&(c.saveData===true||/(^|[^4])2g|slow-2g/.test(c.effectiveType||'')));
+    if(!skip){
+      if(document.readyState==='complete') load();
+      else { addEventListener('load',load); setTimeout(load,2500); }
     }
 
-    function start(){
-      if(started) return; started=true;
-      vid.muted=true;            /* explícito: Safari lo exige para autoplay */
-      vid.playsInline=true;
-      vid.preload='auto';        /* sin esto, con preload="none" no llega a cargar */
-      vid.src='assets/video/hero-loop.mp4';
-      vid.load();
-      /* el velo se activa solo cuando hay imagen de verdad */
-      vid.addEventListener('playing',function(){ hero.classList.add('has-video'); },{once:true});
-      vid.addEventListener('error',function(){ hero.classList.remove('has-video'); });
-      tryPlay();
-
-      new IntersectionObserver(function(en){
-        if(en[0].isIntersecting&&!document.hidden) tryPlay();
-        else vid.pause();
-      },{threshold:0}).observe(hero);
-      document.addEventListener('visibilitychange',function(){
-        if(document.hidden) vid.pause();
-        else if(hero.getBoundingClientRect().bottom>0) tryPlay();
-      });
+    var pend=false;
+    function onSc(){
+      var r=track.getBoundingClientRect(), total=r.height-innerHeight;
+      var p=total>0?Math.max(0,Math.min(1,-r.top/total)):0;
+      draw(p);
+      /* los tres mensajes se relevan a lo largo del recorrido */
+      var b=p<.34?0:(p<.68?1:2);
+      beats.forEach(function(el,i){ el.classList.toggle('on',i===b); });
+      if(cue) cue.style.opacity=p>.06?'0':'1';
+      pend=false;
     }
-
-    /* arranca tras la carga para no competir con el texto, con tope por si load ya pasó */
-    if(document.readyState==='complete') start();
-    else { addEventListener('load',start); setTimeout(start,3000); }
+    addEventListener('scroll',function(){ if(!pend){requestAnimationFrame(onSc);pend=true;} },{passive:true});
+    var rz; addEventListener('resize',function(){ clearTimeout(rz); rz=setTimeout(resize,180); });
+    onSc();
   })();
 
   /* ── foco de luz que sigue al ratón (solo con ratón real) ── */
